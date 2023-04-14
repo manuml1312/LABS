@@ -1,0 +1,23 @@
+version: 0.2
+phases:
+  pre_build:
+    commands:
+      - echo install dependencies
+#      - npm install
+      - aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin 389065545437.dkr.ecr.us-west-1.amazonaws.com
+      - docker login - 389065545437.dkr.ecr.us-west-1.amazonaws.com
+  build:
+    commands:
+      - echo testing
+#     - npm run test
+#     - npm run build
+      - docker build -t demo:latest .
+      - docker tag demo:latest 389065545437.dkr.ecr.us-west-1.amazonaws.com/demo:latest
+  post_build:
+    commands:
+      - echo pushing docker IMAGE
+      - docker push 389065545437.dkr.ecr.us-west-1.amazonaws.com/demo:latest
+      - printf '[{"name":"%s","imageUri":"%s" }]' $CONTAINER_NAME $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/demo:latest > imagedefinitions.json
+
+artifacts:
+  files: imagedefinitions.json
